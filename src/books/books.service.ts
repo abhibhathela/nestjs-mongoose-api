@@ -3,12 +3,12 @@ import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Book } from './schemas/book.schema';
-import { Model } from 'mongoose';
+import { PaginateModel, PaginateResult } from 'mongoose';
 
 @Injectable()
 export class BooksService {
   constructor(
-    @InjectModel(Book.name) private readonly bookModel: Model<Book>,
+    @InjectModel(Book.name) private readonly bookModel: PaginateModel<Book>,
   ) {}
 
   async create(createBookDto: CreateBookDto): Promise<Book> {
@@ -16,8 +16,8 @@ export class BooksService {
     return createdBook;
   }
 
-  async findAll(): Promise<Book[]> {
-    return this.bookModel.find().exec();
+  async findAll(page: number, limit: number): Promise<PaginateResult<Book>> {
+    return this.bookModel.paginate({}, { page, limit });
   }
 
   async findOne(id: string): Promise<Book> {

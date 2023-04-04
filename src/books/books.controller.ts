@@ -1,16 +1,16 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
 } from '@nestjs/common';
 import { BooksService } from './books.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
-import { Book } from './schemas/book.schema';
 
 @Controller('books')
 export class BooksController {
@@ -22,8 +22,8 @@ export class BooksController {
   }
 
   @Get()
-  findAll(): Promise<Book[]> {
-    return this.booksService.findAll();
+  findAll(@Query('limit') limit = 10, @Query('page') page = 1) {
+    return this.booksService.findAll(page, limit);
   }
 
   @Get(':id')
