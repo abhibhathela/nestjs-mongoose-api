@@ -11,14 +11,17 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { BooksService } from './books.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { Cache } from 'cache-manager';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('books')
+@UseGuards(AuthGuard)
 export class BooksController {
   constructor(
     private readonly booksService: BooksService,
