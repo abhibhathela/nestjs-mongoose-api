@@ -1,0 +1,30 @@
+version: '3.9'
+
+services:
+  db:
+    container_name: mongo
+    image: mongo
+    networks:
+      - nesjs-network
+    ports:
+      - 27017:27017
+  api:
+    container_name: raftlabs-api
+    build:
+      dockerfile: Dockerfile
+      context: .
+    networks:
+      - nesjs-network
+    env_file:
+      - .env
+    environment:
+      - MONGO_URI=mongodb://db:27017/raftlabs
+    command: npm run start:dev
+    ports:
+      - 3000:3000
+    depends_on:
+      - db
+
+networks:
+  nesjs-network:
+    driver: bridge
