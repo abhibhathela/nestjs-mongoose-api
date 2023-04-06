@@ -16,8 +16,13 @@ export class BooksService {
     return createdBook;
   }
 
-  async findAll(page: number, limit: number): Promise<PaginateResult<Book>> {
-    return this.bookModel.paginate({}, { page, limit });
+  async findAll(
+    options,
+    page: number,
+    limit: number,
+    sortOptions,
+  ): Promise<PaginateResult<Book>> {
+    return this.bookModel.paginate(options, { page, limit, ...sortOptions });
   }
 
   async findOne(id: string): Promise<Book> {

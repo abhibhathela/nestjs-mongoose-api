@@ -23,6 +23,8 @@ import { BooksGateway } from './books.gateway';
 import { BooksService } from './books.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
+import { FilterQuery } from 'mongoose';
+import { Book } from './schemas/book.schema';
 
 @Controller('books')
 @UseGuards(AuthGuard, RolesGuard)
@@ -45,8 +47,22 @@ export class BooksController {
   @Get()
   @UseInterceptors(CacheInterceptor)
   @CacheTTL(60 * 1000)
-  async findAll(@Query('limit') limit = 10, @Query('page') page = 1) {
-    return this.booksService.findAll(page, limit);
+  async findAll(
+    @Query('limit') limit = 10,
+    @Query('page') page = 1,
+    @Query('term') term: string,
+    @Query('sortCol') sortCol = '_id',
+    @Query('sortDir') sortDir = 1,
+  ) {
+    const options: FilterQuery<Book> = {};
+    const sortOptions = {
+      sort: { [sortCol]: sortDir },
+    };
+    if (term) {
+      options.title = { $regex: term, $options: 'i' };
+    }
+
+    return this.booksService.findAll(options, page, limit, sortOptions);
   }
 
   @Get(':id')
