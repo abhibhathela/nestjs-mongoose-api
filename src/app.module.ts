@@ -1,24 +1,20 @@
 import { CacheModule, Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { MongooseModule } from '@nestjs/mongoose';
-import { BooksModule } from './books/books.module';
 import { AuthModule } from './auth/auth.module';
+import { BooksModule } from './books/books.module';
 import { UsersModule } from './users/users.module';
-import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://127.0.0.1/task1'),
+    ConfigModule.forRoot({ isGlobal: true }),
+    MongooseModule.forRoot(process.env.MONGO_URI),
     BooksModule,
-    CacheModule.register({
-      isGlobal: true,
-    }),
     AuthModule,
     UsersModule,
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
+    CacheModule.register({ isGlobal: true }),
   ],
   controllers: [AppController],
   providers: [AppService],

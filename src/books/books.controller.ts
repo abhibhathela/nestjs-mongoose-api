@@ -14,15 +14,18 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { Cache } from 'cache-manager';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { Role } from 'src/auth/enums/role.enum';
+import { Roles } from 'src/auth/roles.decorators';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { BooksGateway } from './books.gateway';
 import { BooksService } from './books.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
-import { Cache } from 'cache-manager';
-import { AuthGuard } from 'src/auth/auth.guard';
-import { BooksGateway } from './books.gateway';
 
 @Controller('books')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, RolesGuard)
 export class BooksController {
   constructor(
     private readonly booksService: BooksService,
@@ -31,10 +34,10 @@ export class BooksController {
   ) {}
 
   @Post()
+  @Roles(Role.Admin)
   async create(@Body() createBookDto: CreateBookDto) {
     const book = await this.booksService.create(createBookDto);
     this.bookGateway.emitShare(book);
-    // this.bookGateway.server.emit('share', book);
     await this.invalidateCache();
     return book;
   }
@@ -54,6 +57,7 @@ export class BooksController {
   }
 
   @Patch(':id')
+  @Roles(Role.Admin)
   async update(@Param('id') id: string, @Body() updateBookDto: UpdateBookDto) {
     const book = this.booksService.update(id, updateBookDto);
     await this.invalidateCache();
