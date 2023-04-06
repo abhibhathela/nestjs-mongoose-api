@@ -19,19 +19,24 @@ import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { Cache } from 'cache-manager';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { BooksGateway } from './books.gateway';
 
 @Controller('books')
 @UseGuards(AuthGuard)
 export class BooksController {
   constructor(
     private readonly booksService: BooksService,
+    private readonly bookGateway: BooksGateway,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   @Post()
   async create(@Body() createBookDto: CreateBookDto) {
+    const book = await this.booksService.create(createBookDto);
+    this.bookGateway.emitShare(book);
+    // this.bookGateway.server.emit('share', book);
     await this.invalidateCache();
-    return this.booksService.create(createBookDto);
+    return book;
   }
 
   @Get()
@@ -50,8 +55,9 @@ export class BooksController {
 
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateBookDto: UpdateBookDto) {
+    const book = this.booksService.update(id, updateBookDto);
     await this.invalidateCache();
-    return this.booksService.update(id, updateBookDto);
+    return book;
   }
 
   @Delete(':id')
