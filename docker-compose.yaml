@@ -9,7 +9,7 @@ services:
     ports:
       - 27017:27017
   api:
-    container_name: raftlabs-api
+    container_name: nest-api
     build:
       dockerfile: Dockerfile
       context: .
@@ -18,7 +18,7 @@ services:
     env_file:
       - .env
     environment:
-      - MONGO_URI=mongodb://db:27017/raftlabs
+      - MONGO_URI=mongodb://db:27017/nest-apis
     command: npm run start:dev
     ports:
       - 3000:3000
